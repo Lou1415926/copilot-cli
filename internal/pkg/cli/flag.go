@@ -49,6 +49,7 @@ const (
 	localFlag             = "local"
 	deleteSecretFlag      = "delete-secret"
 	svcPortFlag           = "port"
+	withStoppedFlag       = "with-stopped"
 
 	storageTypeFlag         = "storage-type"
 	storagePartitionKeyFlag = "partition-key"
@@ -180,6 +181,7 @@ Defaults to all logs. Only one of end-time / follow may be used.`
 	localJobFlagDescription          = "Only show jobs in the workspace."
 	deleteSecretFlagDescription      = "Deletes AWS Secrets Manager secret associated with a pipeline source repository."
 	svcPortFlagDescription           = "Optional. The port on which your service listens."
+	withStoppedFlagDescription       = "Optional. Show stopped tasks in service."
 
 	storageFlagDescription             = "Name of the storage resource to create."
 	storageWorkloadFlagDescription     = "Name of the service or job to associate with storage."

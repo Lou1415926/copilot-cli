@@ -28,6 +28,7 @@ type svcStatusVars struct {
 	svcName          string
 	envName          string
 	appName          string
+	withStopped      bool
 }
 
 type svcStatusOpts struct {
@@ -59,6 +60,7 @@ func newSvcStatusOpts(vars svcStatusVars) (*svcStatusOpts, error) {
 				App:         o.appName,
 				Env:         o.envName,
 				Svc:         o.svcName,
+				WithStopped: o.withStopped,
 				ConfigStore: configStore,
 			})
 			if err != nil {
@@ -171,6 +173,7 @@ func buildSvcStatusCmd() *cobra.Command {
 	cmd.Flags().StringVarP(&vars.svcName, nameFlag, nameFlagShort, "", svcFlagDescription)
 	cmd.Flags().StringVarP(&vars.envName, envFlag, envFlagShort, "", envFlagDescription)
 	cmd.Flags().StringVarP(&vars.appName, appFlag, appFlagShort, tryReadingAppName(), appFlagDescription)
+	cmd.Flags().BoolVar(&vars.withStopped, withStoppedFlag, false, withStoppedFlagDescription)
 	cmd.Flags().BoolVar(&vars.shouldOutputJSON, jsonFlag, false, jsonFlagDescription)
 	return cmd
 }
