@@ -35,7 +35,7 @@ type ecsServiceGetter interface {
 }
 
 type serviceDescriber interface {
-	DescribeService(app, env, svc string) (*ecs.ServiceDesc, error)
+	DescribeService(app, env, svc string, withStopped bool) (*ecs.ServiceDesc, error)
 }
 
 type autoscalingAlarmNamesGetter interface {
@@ -44,9 +44,10 @@ type autoscalingAlarmNamesGetter interface {
 
 // ServiceStatus retrieves status of a service.
 type ServiceStatus struct {
-	app string
-	env string
-	svc string
+	app	        string
+	env         string
+	svc         string
+	withStopped bool
 
 	svcDescriber serviceDescriber
 	ecsSvc       ecsServiceGetter
@@ -66,6 +67,7 @@ type NewServiceStatusConfig struct {
 	App         string
 	Env         string
 	Svc         string
+	WithStopped bool
 	ConfigStore ConfigStoreSvc
 }
 
@@ -83,6 +85,7 @@ func NewServiceStatus(opt *NewServiceStatusConfig) (*ServiceStatus, error) {
 		app:          opt.App,
 		env:          opt.Env,
 		svc:          opt.Svc,
+		withStopped:  opt.WithStopped,
 		svcDescriber: ecs.New(sess),
 		cwSvc:        cloudwatch.New(sess),
 		ecsSvc:       awsECS.New(sess),
@@ -92,7 +95,7 @@ func NewServiceStatus(opt *NewServiceStatusConfig) (*ServiceStatus, error) {
 
 // Describe returns status of a service.
 func (s *ServiceStatus) Describe() (*ServiceStatusDesc, error) {
-	svcDesc, err := s.svcDescriber.DescribeService(s.app, s.env, s.svc)
+	svcDesc, err := s.svcDescriber.DescribeService(s.app, s.env, s.svc, s.withStopped)
 	if err != nil {
 		return nil, fmt.Errorf("get ECS service description for %s: %w", s.svc, err)
 	}

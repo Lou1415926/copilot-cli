@@ -32,6 +32,7 @@ type ecsClient interface {
 	RunningTasksInFamily(cluster, family string) ([]*ecs.Task, error)
 	RunningTasks(cluster string) ([]*ecs.Task, error)
 	ServiceTasks(clusterName, serviceName string) ([]*ecs.Task, error)
+	StoppedServiceTasks(clusterName, serviceName string) ([]*ecs.Task, error)
 	DefaultCluster() (string, error)
 	StopTasks(tasks []string, opts ...ecs.StopTasksOpts) error
 }
@@ -100,7 +101,7 @@ func (c Client) ServiceARN(app, env, svc string) (*ecs.ServiceArn, error) {
 }
 
 // DescribeService returns the description of an ECS service given Copilot service info.
-func (c Client) DescribeService(app, env, svc string) (*ServiceDesc, error) {
+func (c Client) DescribeService(app, env, svc string, withStopped bool) (*ServiceDesc, error) {
 	svcARN, err := c.ServiceARN(app, env, svc)
 	if err != nil {
 		return nil, err
@@ -116,6 +117,13 @@ func (c Client) DescribeService(app, env, svc string) (*ServiceDesc, error) {
 	tasks, err := c.ecsClient.ServiceTasks(clusterName, serviceName)
 	if err != nil {
 		return nil, fmt.Errorf("get tasks for service %s: %w", serviceName, err)
+	}
+	if withStopped {
+		stoppedTasks, err := c.ecsClient.StoppedServiceTasks(clusterName, serviceName)
+		if err != nil {
+			return nil, fmt.Errorf("get stopped tasks for service %s: %w", serviceName, err)
+		}
+		tasks = append(tasks, stoppedTasks...)
 	}
 	return &ServiceDesc{
 		ClusterName: clusterName,
