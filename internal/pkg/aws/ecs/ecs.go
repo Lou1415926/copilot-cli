@@ -84,6 +84,11 @@ func (e *ECS) ServiceTasks(cluster, service string) ([]*Task, error) {
 	return e.listTasks(cluster, withService(service))
 }
 
+// StoppedTasksInService calls ECS API and returns stopped ECS tasks in a service.
+func (e *ECS) StoppedServiceTasks(cluster, service string) ([]*Task, error) {
+	return e.listTasks(cluster, withService(service), withStoppedTasks())
+}
+
 // RunningTasksInFamily calls ECS API and returns ECS tasks with the desired status to be RUNNING
 // within the same task definition family.
 func (e *ECS) RunningTasksInFamily(cluster, family string) ([]*Task, error) {
@@ -111,6 +116,12 @@ func withFamily(family string) listTasksOpts {
 func withRunningTasks() listTasksOpts {
 	return func(in *ecs.ListTasksInput) {
 		in.DesiredStatus = aws.String(ecs.DesiredStatusRunning)
+	}
+}
+
+func withStoppedTasks() listTasksOpts {
+	return func(in *ecs.ListTasksInput) {
+		in.DesiredStatus = aws.String(ecs.DesiredStatusStopped)
 	}
 }
 
